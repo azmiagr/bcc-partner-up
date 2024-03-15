@@ -56,14 +56,13 @@ func (r *Rest) MountEndpoint() {
 }
 
 func (r *Rest) Run() {
-	addr := os.Getenv("ADDRESS") // nanti ini command
+	// addr := os.Getenv("ADDRESS") // nanti ini command
 	port := os.Getenv("PORT")
 	// if port == "" {
 	// 	port = "5000"
 	// }
 
-	r.router.Run(fmt.Sprintf("%s:%s", addr, port))
-	// r.router.Run(fmt.Sprintf(":%s",port))
+	r.router.Run(fmt.Sprintf(":%s", port))
 }
 
 func testTimeout(ctx *gin.Context) {
