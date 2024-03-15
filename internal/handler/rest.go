@@ -58,9 +58,9 @@ func (r *Rest) MountEndpoint() {
 func (r *Rest) Run() {
 	// addr := os.Getenv("ADDRESS") // nanti ini command
 	port := os.Getenv("PORT")
-	// if port == "" {
-	// 	port = "5000"
-	// }
+	if port == "" {
+		port = "5000"
+	}
 
 	r.router.Run(fmt.Sprintf(":%s", port))
 }
