@@ -1,6 +1,11 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"intern-bcc/entity"
+	"mime/multipart"
+
+	"github.com/google/uuid"
+)
 
 type UserRegister struct {
 	ID       uuid.UUID `json:"-"`
@@ -27,8 +32,12 @@ type GetUserByNameResponse struct {
 	Name   string
 	Email  string
 	Alamat string
-	Minat  string
-	Skill  string
+	Minat  []*entity.Minat
+	Skill  []*entity.Skill
+}
+
+type UploadPhoto struct {
+	Photo *multipart.FileHeader `form:"photo"`
 }
 
 // type UserRegister struct {

@@ -13,6 +13,8 @@ func Migrate(db *gorm.DB) error {
 		&entity.Post{},
 		&entity.Uni{},
 		&entity.District{},
+		&entity.Minat{},
+		&entity.Skill{},
 	); err != nil {
 		return err
 	}

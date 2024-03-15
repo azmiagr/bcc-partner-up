@@ -33,25 +33,37 @@ func (r *Rest) MountEndpoint() {
 	post := r.router.Group("user-post")
 	r.router.Use(r.middleware.Timeout())
 
-	//r.middleware.OnlyAdmin,
-	routerGroup.GET("/uni", r.GetAllUni)
-	routerGroup.GET("/district", r.GetAllDistrict)
 	routerGroup.GET("/login-user", r.middleware.AuthenticateUser, r.middleware.OnlyAdmin, testGetLoginUser)
 	routerGroup.GET("/time-out", testTimeout)
-	routerGroup.POST("/login", r.Login)
-	routerGroup.GET("/get-user/:name", r.GetUserByName)
+
+	//r.middleware.OnlyAdmin,
+	// routerGroup.GET("/uni", r.GetAllUni)
+	// routerGroup.GET("/district", r.GetAllDistrict)
+	// routerGroup.POST("/login", r.Login)
+	// routerGroup.GET("/get-user/:name", r.GetUserByName)
+
+	user := r.router.Group("/user")
+	user.POST("/login", r.Login)
+	user.GET("/skill", r.middleware.AuthenticateUser, r.GetAllSkill)
+	user.GET("/minat", r.middleware.AuthenticateUser, r.GetAllMinat)
+	user.GET("/uni", r.middleware.AuthenticateUser, r.GetAllUni)
+	user.GET("/district", r.middleware.AuthenticateUser, r.GetAllDistrict)
+	user.GET("/get-user/:name", r.middleware.AuthenticateUser, r.GetUserByName)
+	user.POST("/profile/upload", r.middleware.AuthenticateUser, r.UploadPhoto)
+
 	post.POST("/post", r.middleware.AuthenticateUser, r.CreatePost)
 	post.PATCH("/update/:id", r.UpdatePost)
 }
 
 func (r *Rest) Run() {
-	// addr := os.Getenv("ADDRESS")
+	addr := os.Getenv("ADDRESS") // nanti ini command
 	port := os.Getenv("PORT")
-	if port == "" {
-		port = "5000"
-	}
+	// if port == "" {
+	// 	port = "5000"
+	// }
 
-	r.router.Run(fmt.Sprintf("%s:", port))
+	r.router.Run(fmt.Sprintf("%s:%s", addr, port))
+	// r.router.Run(fmt.Sprintf(":%s",port))
 }
 
 func testTimeout(ctx *gin.Context) {

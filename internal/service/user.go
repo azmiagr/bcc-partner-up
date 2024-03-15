@@ -7,7 +7,9 @@ import (
 	"intern-bcc/model"
 	"intern-bcc/pkg/bcrypt"
 	"intern-bcc/pkg/jwt"
+	"intern-bcc/pkg/supabase"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	// "golang.org/x/crypto/bcrypt"
 )
@@ -17,19 +19,22 @@ type IUserService interface {
 	Login(param model.UserLogin) (model.UserLoginResponse, error)
 	GetUser(param model.UserParam) (entity.User, error)
 	GetUserByName(name string) (*entity.User, error)
+	UploadPhoto(ctx *gin.Context, param model.UploadPhoto) error
 }
 
 type UserService struct {
 	UserRepo repository.IUserRepository
 	bcrypt   bcrypt.Interface
 	jwtAuth  jwt.Interface
+	supabase supabase.Interface
 }
 
-func NewUserService(r repository.IUserRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface) IUserService {
+func NewUserService(r repository.IUserRepository, bcrypt bcrypt.Interface, jwtAuth jwt.Interface, supabase supabase.Interface) IUserService {
 	return &UserService{
 		UserRepo: r,
 		bcrypt:   bcrypt,
 		jwtAuth:  jwtAuth,
+		supabase: supabase,
 	}
 }
 
@@ -99,4 +104,34 @@ func (u *UserService) GetUserByName(name string) (*entity.User, error) {
 	}
 
 	return user, nil
+}
+
+func (u *UserService) UploadPhoto(ctx *gin.Context, param model.UploadPhoto) error {
+	user, err := u.jwtAuth.GetLoginUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	if user.PhotoLink != "" {
+		err := u.supabase.Delete(user.PhotoLink)
+		if err != nil {
+			return err
+		}
+	}
+
+	link, err := u.supabase.Upload(param.Photo)
+	if err != nil {
+		return err
+	}
+
+	err = u.UserRepo.UpdateUserPhoto(entity.User{
+		PhotoLink: link,
+	}, model.UserParam{
+		ID: user.ID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

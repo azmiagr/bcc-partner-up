@@ -62,3 +62,19 @@ func (r *Rest) GetUserByName(ctx *gin.Context) {
 
 	response.Success(ctx, http.StatusOK, "user found", responses)
 }
+
+func (r *Rest) UploadPhoto(ctx *gin.Context) {
+	photo, err := ctx.FormFile("photo")
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "failed to upload photo", err)
+		return
+	}
+
+	err = r.service.User.UploadPhoto(ctx, model.UploadPhoto{Photo: photo})
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "failed to upload data", err)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "success upload photo", nil)
+}

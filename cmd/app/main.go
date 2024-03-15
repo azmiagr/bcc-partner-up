@@ -9,6 +9,7 @@ import (
 	"intern-bcc/pkg/database/mysql"
 	"intern-bcc/pkg/jwt"
 	"intern-bcc/pkg/middleware"
+	"intern-bcc/pkg/supabase"
 	"log"
 )
 
@@ -28,7 +29,9 @@ func main() {
 
 	jwt := jwt.Init()
 
-	svc := service.NewService(repo, bcrypt, jwt)
+	supabase := supabase.Init()
+
+	svc := service.NewService(repo, bcrypt, jwt, supabase)
 
 	middleware := middleware.Init(jwt, svc)
 

@@ -3,6 +3,7 @@ package entity
 type District struct {
 	ID   uint
 	Name string
+	User []User
 }
 
 // 3507 kab malang
