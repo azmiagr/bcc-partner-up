@@ -51,7 +51,7 @@ func (r *Rest) Run() {
 		port = "5000"
 	}
 
-	r.router.Run(fmt.Sprintf("%s:", port))
+	r.router.Run(fmt.Sprintf(":%s", port))
 }
 
 func testTimeout(ctx *gin.Context) {
