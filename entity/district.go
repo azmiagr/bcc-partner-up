@@ -1,9 +1,9 @@
 package entity
 
 type District struct {
-	ID   uint
-	Name string
-	User []User
+	ID    uint `json:"id" gorm:"primary_key;autoIncrement"`
+	Name  string
+	Users []User
 }
 
 // 3507 kab malang

@@ -20,10 +20,10 @@ type User struct {
 	CreatedAt  time.Time `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt  time.Time `json:"updatedAt" gorm:"autoUpdateTime"`
 	Post       []Post
-	Uni        Uni
 	UniID      uint
-	District   District
+	Uni        Uni `json:"uni" gorm:"foreignKey:UniID;"`
 	DistrictID uint
+	District   District `json:"district" gorm:"foreignKey:DistrictID;"`
 }
 
 // `json:"role" gorm:"foreinKey:ID; references:roles; not null;"`
