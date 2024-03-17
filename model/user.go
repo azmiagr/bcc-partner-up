@@ -11,8 +11,8 @@ type UserRegister struct {
 	ID       uuid.UUID `json:"-"`
 	Email    string    `json:"email" binding:"required,email"`
 	Password string    `json:"password" binding:"required,min=8"`
-	Uni      int       `json:"uni" binding:"required"`
-	District int       `json:"district" binding:"required"`
+	// Uni      int       `json:"uni" binding:"required"`
+	// District int       `json:"district" binding:"required"`
 }
 
 type UserLogin struct {
