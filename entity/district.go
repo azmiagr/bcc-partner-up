@@ -1,9 +1,9 @@
 package entity
 
 type District struct {
-	ID    uint `json:"id" gorm:"primary_key;autoIncrement"`
-	Name  string
-	Users []User
+	ID    uint   `json:"id" gorm:"primary_key;autoIncrement"`
+	Name  string `json:"name" gorm:"type:varchar(255);not null;"`
+	Users []User `json:"users" gorm:"foreignKey:DistrictID"`
 }
 
 // 3507 kab malang
@@ -47,7 +47,7 @@ INSERT INTO `districts` (`name`) VALUES
 ('SUKUN'),
 ('KLOJEN'),
 ('BLIMBING'),
-('LOWOKWARU'),
+('LOWOKWARU')
 
 */
 

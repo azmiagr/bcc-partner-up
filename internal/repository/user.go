@@ -12,6 +12,7 @@ type IUserRepository interface {
 	GetUser(param model.UserParam) (entity.User, error)
 	GetUserByName(name string) (*entity.User, error)
 	UpdateUserPhoto(user entity.User, param model.UserParam) error
+	UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error)
 }
 
 type UserRepository struct {
@@ -54,20 +55,49 @@ func (u *UserRepository) UpdateUserPhoto(user entity.User, param model.UserParam
 	return nil
 }
 
-// func (u *UserRepository) UpdateProfile(user entity.User) error {
-// 	err := u.db.Model(&user).Updates(entity.User{
-// 		Name:   user.Name,
-// 		Uni:    user.Uni,
-// 		Alamat: user.Alamat,
-// 		Minat:  user.Minat,
-// 		Skill:  user.Skill,
-// 	}).Error
-// 	if err != nil {
-// 		return err
-// 	}
+func (u *UserRepository) UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error) {
+	tx := u.db.Begin()
+	var user entity.User
+	err := u.db.Model(&user).Updates(entity.User{
+		Name:       user.Name,
+		UniID:      user.UniID,
+		DistrictID: user.DistrictID,
+		Minat:      user.Minat,
+		Skill:      user.Skill,
+	}).Error
+	if err != nil {
+		return nil, err
+	}
 
-// 	return nil
-// }
+	userParse := parseUpdateProfile(profileReq, &user)
+
+	if err := tx.Debug().Model(&user).Save(&userParse).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+	return &user, nil
+}
+
+func parseUpdateProfile(model *model.UpdateProfile, profile *entity.User) *entity.User {
+	if model.Name != "" {
+		profile.Name = model.Name
+	}
+	if model.District != 0 {
+		profile.DistrictID = model.District
+	}
+	if model.Minat != nil {
+		profile.Minat = model.Minat
+	}
+	if model.Skill != nil {
+		profile.Skill = model.Skill
+	}
+	if model.Uni != 0 {
+		profile.UniID = model.Uni
+	}
+	return profile
+}
 
 // func (r *UserRepository) CreateUser(u entity.User) (entity.User,error) {
 // 	err := r.db.Debug().Create(&u).Error

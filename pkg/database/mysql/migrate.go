@@ -9,12 +9,12 @@ import (
 func Migrate(db *gorm.DB) error {
 	if err := db.AutoMigrate(
 		&entity.Role{},
-		&entity.User{},
 		&entity.Post{},
 		&entity.Uni{},
 		&entity.District{},
 		&entity.Minat{},
 		&entity.Skill{},
+		&entity.User{},
 	); err != nil {
 		return err
 	}

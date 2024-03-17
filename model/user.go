@@ -11,6 +11,8 @@ type UserRegister struct {
 	ID       uuid.UUID `json:"-"`
 	Email    string    `json:"email" binding:"required,email"`
 	Password string    `json:"password" binding:"required,min=8"`
+	Uni      int       `json:"uni" binding:"required"`
+	District int       `json:"district" binding:"required"`
 }
 
 type UserLogin struct {
@@ -29,15 +31,23 @@ type UserParam struct {
 }
 
 type GetUserByNameResponse struct {
-	Name   string
-	Email  string
-	Alamat string
-	Minat  []*entity.Minat
-	Skill  []*entity.Skill
+	Name     string
+	Email    string
+	District uint
+	Minat    []*entity.Minat
+	Skill    []*entity.Skill
 }
 
 type UploadPhoto struct {
 	Photo *multipart.FileHeader `form:"photo"`
+}
+
+type UpdateProfile struct {
+	Name     string
+	Uni      uint
+	District uint
+	Minat    []*entity.Minat
+	Skill    []*entity.Skill
 }
 
 // type UserRegister struct {

@@ -53,11 +53,11 @@ func (r *Rest) GetUserByName(ctx *gin.Context) {
 		return
 	}
 	responses := model.GetUserByNameResponse{
-		Name:   user.Name,
-		Email:  user.Email,
-		Alamat: user.Alamat,
-		Minat:  user.Minat,
-		Skill:  user.Skill,
+		Name:     user.Name,
+		Email:    user.Email,
+		District: user.DistrictID,
+		Minat:    user.Minat,
+		Skill:    user.Skill,
 	}
 
 	response.Success(ctx, http.StatusOK, "user found", responses)
@@ -77,4 +77,22 @@ func (r *Rest) UploadPhoto(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "success upload photo", nil)
+}
+
+func (r *Rest) UpdateProfile(ctx *gin.Context) {
+	id := ctx.Param("id")
+	var profileReq model.UpdateProfile
+
+	if err := ctx.ShouldBindJSON(&profileReq); err != nil {
+		response.Error(ctx, http.StatusUnprocessableEntity, "invalid request", err)
+		return
+	}
+
+	profile, err := r.service.User.UpdateProfile(id, &profileReq)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "Failed to update profile", err)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Profile Updated", profile)
 }

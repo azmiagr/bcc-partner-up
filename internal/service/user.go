@@ -20,6 +20,7 @@ type IUserService interface {
 	GetUser(param model.UserParam) (entity.User, error)
 	GetUserByName(name string) (*entity.User, error)
 	UploadPhoto(ctx *gin.Context, param model.UploadPhoto) error
+	UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error)
 }
 
 type UserService struct {
@@ -52,10 +53,12 @@ func (u *UserService) Register(data model.UserRegister) error {
 	}
 
 	user := &entity.User{
-		ID:       id,
-		Email:    data.Email,
-		Password: hash,
-		RoleID:   2, // nanti ganti !!!!!!!
+		ID:         id,
+		Email:      data.Email,
+		Password:   hash,
+		RoleID:     2,
+		UniID:      uint(data.Uni),
+		DistrictID: uint(data.District),
 	}
 
 	err = u.UserRepo.CreateUser(user)
@@ -134,4 +137,13 @@ func (u *UserService) UploadPhoto(ctx *gin.Context, param model.UploadPhoto) err
 	}
 
 	return nil
+}
+
+func (ur *UserService) UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error) {
+	user, err := ur.UserRepo.UpdateProfile(id, profileReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

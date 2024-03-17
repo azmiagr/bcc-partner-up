@@ -50,6 +50,7 @@ func (r *Rest) MountEndpoint() {
 	user.GET("/district", r.middleware.AuthenticateUser, r.GetAllDistrict)
 	user.GET("/get-user/:name", r.middleware.AuthenticateUser, r.GetUserByName)
 	user.POST("/profile/upload", r.middleware.AuthenticateUser, r.UploadPhoto)
+	user.PATCH("/profile/update-profile/:user_id", r.middleware.AuthenticateUser, r.UpdateProfile)
 
 	post.POST("/post", r.middleware.AuthenticateUser, r.CreatePost)
 	post.PATCH("/update/:id", r.UpdatePost)
@@ -61,8 +62,9 @@ func (r *Rest) Run() {
 	if port == "" {
 		port = "5000"
 	}
-
-	r.router.Use(r.middleware.Cors())
+	cors := gin.Default()
+	cors.Use(r.middleware.Cors())
+	// r.router.Use(r.middleware.Cors())
 	r.router.Run(fmt.Sprintf(":%s", port))
 }
 
