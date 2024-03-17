@@ -62,9 +62,7 @@ func (r *Rest) Run() {
 	if port == "" {
 		port = "5000"
 	}
-	cors := gin.Default()
-	cors.Use(r.middleware.Cors())
-	// r.router.Use(r.middleware.Cors())
+	r.router.Use(r.middleware.Cors())
 	r.router.Run(fmt.Sprintf(":%s", port))
 }
 
