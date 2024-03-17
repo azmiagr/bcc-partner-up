@@ -53,12 +53,12 @@ func (u *UserService) Register(data model.UserRegister) error {
 	}
 
 	user := &entity.User{
-		ID:       id,
-		Email:    data.Email,
-		Password: hash,
-		RoleID:   2,
-		// UniID:      uint(data.Uni),
-		// DistrictID: uint(data.District),
+		ID:         id,
+		Email:      data.Email,
+		Password:   hash,
+		RoleID:     2,
+		UniID:      1,
+		DistrictID: 1,
 	}
 
 	err = u.UserRepo.CreateUser(user)
