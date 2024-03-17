@@ -28,6 +28,7 @@ func NewRest(service *service.Service, middleware middleware.Interface) *Rest {
 }
 
 func (r *Rest) MountEndpoint() {
+	r.router.Use(r.middleware.Cors())
 	r.router.POST("/register", r.Register)
 	routerGroup := r.router.Group("api/v1")
 	post := r.router.Group("user-post")
@@ -62,7 +63,6 @@ func (r *Rest) Run() {
 	if port == "" {
 		port = "5000"
 	}
-	r.router.Use(r.middleware.Cors())
 	r.router.Run(fmt.Sprintf(":%s", port))
 }
 
