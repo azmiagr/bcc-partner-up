@@ -44,6 +44,8 @@ func (r *Rest) MountEndpoint() {
 	// routerGroup.GET("/get-user/:name", r.GetUserByName)
 
 	user := r.router.Group("/user")
+
+	user.POST("/", Ping)
 	user.POST("/login", r.Login)
 	user.GET("/skill", r.GetAllSkill)
 	user.GET("/minat", r.GetAllMinat)
@@ -70,6 +72,10 @@ func testTimeout(ctx *gin.Context) {
 	time.Sleep(3 * time.Second)
 
 	response.Success(ctx, http.StatusOK, "success", nil)
+}
+
+func Ping(ctx *gin.Context) {
+	ctx.JSON(200, "terserah")
 }
 
 func testGetLoginUser(ctx *gin.Context) {
