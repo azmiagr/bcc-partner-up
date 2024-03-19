@@ -1,7 +1,6 @@
 package model
 
 import (
-	"intern-bcc/entity"
 	"mime/multipart"
 
 	"github.com/google/uuid"
@@ -11,6 +10,8 @@ type UserRegister struct {
 	ID       uuid.UUID `json:"-"`
 	Email    string    `json:"email" binding:"required,email"`
 	Password string    `json:"password" binding:"required,min=8"`
+	RoleID   int
+
 	// Uni      int       `json:"uni" binding:"required"`
 	// District int       `json:"district" binding:"required"`
 }
@@ -31,11 +32,10 @@ type UserParam struct {
 }
 
 type GetUserByNameResponse struct {
-	Name     string
-	Email    string
-	District uint
-	Minat    []*entity.Minat
-	Skill    []*entity.Skill
+	Name  string
+	Uni   uint
+	Minat []uint `json:"minat_id"`
+	Skill []uint `json:"skill_id"`
 }
 
 type UploadPhoto struct {
@@ -43,11 +43,19 @@ type UploadPhoto struct {
 }
 
 type UpdateProfile struct {
-	Name     string
-	Uni      uint
-	District uint
-	Minat    []*entity.Minat
-	Skill    []*entity.Skill
+	Name     string `json:"name"`
+	Uni      uint   `json:"uni_id"`
+	District uint   `json:"district_id"`
+	Minat    []uint `json:"minat_id" binding:"lte=5"`
+	Skill    []uint `json:"skill_id" binding:"lte=5"`
+}
+
+type UpdateProfileResponse struct {
+	Name     string `json:"name"`
+	Uni      uint   `json:"uni_id"`
+	District uint   `json:"district_id"`
+	Minat    []uint `json:"minat_id"`
+	Skill    []uint `json:"skill_id"`
 }
 
 // type UserRegister struct {

@@ -13,7 +13,7 @@ type User struct {
 	Password string    `json:"password" gorm:"type:varchar(255);not null;"`
 	RoleID   uint
 	// Role       Role      `json:"roles,omitempty" gorm:"foreignKey:RoleID;references:ID"`
-	Alamat     string    `json:"alamat" gorm:"type:varchar(255);"`
+	// Alamat     string    `json:"alamat" gorm:"type:varchar(255);"`
 	Minat      []*Minat  `json:"minat" gorm:"many2many:user_minat;"`
 	Skill      []*Skill  `json:"skill" gorm:"many2many:user_skill;"`
 	PhotoLink  string    `json:"photoLink" gorm:"type:varchar(200);"`

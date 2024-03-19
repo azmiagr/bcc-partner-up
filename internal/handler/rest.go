@@ -45,16 +45,16 @@ func (r *Rest) MountEndpoint() {
 
 	user := r.router.Group("/user")
 	user.POST("/login", r.Login)
-	user.GET("/skill", r.middleware.AuthenticateUser, r.GetAllSkill)
-	user.GET("/minat", r.middleware.AuthenticateUser, r.GetAllMinat)
-	user.GET("/uni", r.middleware.AuthenticateUser, r.GetAllUni)
-	user.GET("/district", r.middleware.AuthenticateUser, r.GetAllDistrict)
+	user.GET("/skill", r.GetAllSkill)
+	user.GET("/minat", r.GetAllMinat)
+	user.GET("/uni", r.GetAllUni)
+	user.GET("/district", r.GetAllDistrict)
 	user.GET("/get-user/:name", r.middleware.AuthenticateUser, r.GetUserByName)
 	user.POST("/profile/upload", r.middleware.AuthenticateUser, r.UploadPhoto)
 	user.PATCH("/profile/update-profile/:user_id", r.middleware.AuthenticateUser, r.UpdateProfile)
 
 	post.POST("/post", r.middleware.AuthenticateUser, r.CreatePost)
-	post.PATCH("/update/:id", r.UpdatePost)
+	post.PATCH("/update/:id/:user_id", r.UpdatePost)
 }
 
 func (r *Rest) Run() {

@@ -15,7 +15,7 @@ import (
 )
 
 type IUserService interface {
-	Register(data model.UserRegister) error
+	Register(data *model.UserRegister) (*entity.User, error)
 	Login(param model.UserLogin) (model.UserLoginResponse, error)
 	GetUser(param model.UserParam) (entity.User, error)
 	GetUserByName(name string) (*entity.User, error)
@@ -39,17 +39,17 @@ func NewUserService(r repository.IUserRepository, bcrypt bcrypt.Interface, jwtAu
 	}
 }
 
-func (u *UserService) Register(data model.UserRegister) error {
+func (u *UserService) Register(data *model.UserRegister) (*entity.User, error) {
 	hash, err := u.bcrypt.GenerateFromPasswordstring(data.Password)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id, err := uuid.NewUUID()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user := &entity.User{
@@ -61,13 +61,13 @@ func (u *UserService) Register(data model.UserRegister) error {
 		DistrictID: 1,
 	}
 
-	err = u.UserRepo.CreateUser(user)
+	user, err = u.UserRepo.CreateUser(user)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return user, err
 
 }
 

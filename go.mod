@@ -12,6 +12,7 @@ require (
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/gin-contrib/cors v1.7.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/supabase-community/storage-go v0.7.0 // indirect
 )
 
 require (

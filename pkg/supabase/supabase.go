@@ -4,7 +4,10 @@ import (
 	"mime/multipart"
 	"os"
 
-	supabasestorageuploader "github.com/adityarizkyramadhan/supabase-storage-uploader"
+	// "os"
+
+	// supabasestorageuploader "github.com/adityarizkyramadhan/supabase-storage-uploader"
+	storage_go "github.com/supabase-community/storage-go"
 )
 
 type Interface interface {
@@ -12,31 +15,35 @@ type Interface interface {
 	Delete(link string) error
 }
 
-type supabaseStorage struct {
-	client *supabasestorageuploader.Client
+type SupabaseStorage struct {
+	client *storage_go.Client
 }
 
 func Init() Interface {
-	supClient := supabasestorageuploader.New(
-		os.Getenv("SUPABASE_URL"),
-		os.Getenv("SUPABASE_TOKEN"),
-		os.Getenv("SUPABASE_BUCKET"),
-	)
-	return &supabaseStorage{
-		client: supClient,
+	storageClient := storage_go.NewClient(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_TOKEN"), nil)
+
+	return &SupabaseStorage{
+		client: storageClient,
 	}
 }
 
-func (s *supabaseStorage) Upload(file *multipart.FileHeader) (string, error) {
-	link, err := s.client.Upload(file)
+func (s *SupabaseStorage) Upload(file *multipart.FileHeader) (string, error) {
+	buff, err := file.Open()
 	if err != nil {
-		return link, err
+		return "", err
 	}
+	defer buff.Close()
+
+	_, err = s.client.UploadFile(os.Getenv("SUPABASE_BUCKET"), file.Filename, buff)
+	if err != nil {
+		return "", err
+	}
+	link := s.client.GetPublicUrl(os.Getenv("SUPABASE_BUCKET"), file.Filename).SignedURL
 	return link, nil
 }
 
-func (s *supabaseStorage) Delete(link string) error {
-	err := s.client.Delete(link)
+func (s *SupabaseStorage) Delete(link string) error {
+	_, err := s.client.RemoveFile(os.Getenv("SUPABASE_BUCKET"), []string{link})
 	if err != nil {
 		return err
 	}

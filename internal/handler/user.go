@@ -9,6 +9,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// func (r *Rest) Register(ctx *gin.Context) {
+// 	param := model.UserRegister{}
+// 	err := ctx.ShouldBindJSON(&param)
+// 	if err != nil {
+// 		response.Error(ctx, http.StatusBadRequest, "failed to bind input", err)
+// 		return
+// 	}
+
+// 	param, err = r.service.User.Register(&param)
+// 	if err != nil {
+// 		response.Error(ctx, http.StatusInternalServerError, "failed to register new user", err)
+// 		return
+// 	}
+
+// 	response.Success(ctx, http.StatusCreated, "successfully register new user", nil)
+// }
+
 func (r *Rest) Register(ctx *gin.Context) {
 	param := model.UserRegister{}
 	err := ctx.ShouldBindJSON(&param)
@@ -17,7 +34,7 @@ func (r *Rest) Register(ctx *gin.Context) {
 		return
 	}
 
-	err = r.service.User.Register(param)
+	_, err = r.service.User.Register(&param)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, "failed to register new user", err)
 		return
@@ -52,12 +69,12 @@ func (r *Rest) GetUserByName(ctx *gin.Context) {
 		response.Error(ctx, http.StatusInternalServerError, "Failed to get user", err)
 		return
 	}
+	var profile model.UpdateProfileResponse
 	responses := model.GetUserByNameResponse{
-		Name:     user.Name,
-		Email:    user.Email,
-		District: user.DistrictID,
-		Minat:    user.Minat,
-		Skill:    user.Skill,
+		Name:  user.Name,
+		Uni:   user.UniID,
+		Minat: profile.Minat,
+		Skill: profile.Skill,
 	}
 
 	response.Success(ctx, http.StatusOK, "user found", responses)
@@ -66,7 +83,7 @@ func (r *Rest) GetUserByName(ctx *gin.Context) {
 func (r *Rest) UploadPhoto(ctx *gin.Context) {
 	photo, err := ctx.FormFile("photo")
 	if err != nil {
-		response.Error(ctx, http.StatusInternalServerError, "failed to upload photo", err)
+		response.Error(ctx, http.StatusInternalServerError, "failed to bind input", err)
 		return
 	}
 
@@ -80,7 +97,7 @@ func (r *Rest) UploadPhoto(ctx *gin.Context) {
 }
 
 func (r *Rest) UpdateProfile(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("user_id")
 	var profileReq model.UpdateProfile
 
 	if err := ctx.ShouldBindJSON(&profileReq); err != nil {
@@ -94,5 +111,13 @@ func (r *Rest) UpdateProfile(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, http.StatusOK, "Profile Updated", profile)
+	res := model.UpdateProfileResponse{
+		Name:     profile.Name,
+		Uni:      profile.UniID,
+		District: profile.DistrictID,
+		Minat:    profileReq.Minat,
+		Skill:    profileReq.Skill,
+	}
+
+	response.Success(ctx, http.StatusOK, "Profile Updated", res)
 }
