@@ -42,10 +42,8 @@ func (r *Rest) MountEndpoint() {
 	// routerGroup.GET("/district", r.GetAllDistrict)
 	// routerGroup.POST("/login", r.Login)
 	// routerGroup.GET("/get-user/:name", r.GetUserByName)
-
+	r.router.GET("/", Ping)
 	user := r.router.Group("/user")
-
-	user.POST("/", Ping)
 	user.POST("/login", r.Login)
 	user.GET("/skill", r.GetAllSkill)
 	user.GET("/minat", r.GetAllMinat)
