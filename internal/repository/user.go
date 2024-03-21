@@ -15,6 +15,7 @@ type IUserRepository interface {
 	GetUserByName(name string) (*entity.User, error)
 	UpdateUserPhoto(user entity.User, param model.UserParam) error
 	UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error)
+	GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]entity.User, error)
 }
 
 type UserRepository struct {
@@ -114,6 +115,26 @@ func (u *UserRepository) UpdateProfile(id string, profileReq *model.UpdateProfil
 
 	tx.Commit()
 	return &user, nil
+}
+
+// nanti bikin GetUserByMinat atau Filter
+
+func (u *UserRepository) GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]entity.User, error) {
+	var users []entity.User
+	query := u.db
+	if uniID != 0 {
+		query = query.Where("uni_id", uniID)
+	}
+	if len(minatID) > 0 {
+		query = query.Preload("Minat").Joins("JOIN user_minat on users.id = user_minat.user_id").Where("user_minat.minat_id IN ?", minatID)
+	}
+	if len(skillID) > 0 {
+		query = query.Preload("Skill").Joins("JOIN user_skill on users.id = user_skill.user_id").Where("user_skill.skill_id IN ?", skillID)
+	}
+	if err := query.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 // func parseUpdateProfile(model *model.UpdateProfile, profile *entity.User) *entity.User {

@@ -58,6 +58,14 @@ type UpdateProfileResponse struct {
 	Skill    []uint `json:"skill_id"`
 }
 
+type UserFilter struct {
+	ID    uuid.UUID `json:"-"`
+	Name  string    `json:"name"`
+	Uni   uint      `json:"uni_id"`
+	Minat []uint    `json:"minat_id"`
+	Skill []uint    `json:"skill_id"`
+}
+
 // type UserRegister struct {
 // 	ID       uuid.UUID `json:"id" gorm:"type:varchar(36);primary_key;"`
 // 	Email    string    `json:"email" gorm:"type:varchar(255);not null;unique"`

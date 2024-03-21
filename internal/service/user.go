@@ -21,6 +21,7 @@ type IUserService interface {
 	GetUserByName(name string) (*entity.User, error)
 	UploadPhoto(ctx *gin.Context, param model.UploadPhoto) error
 	UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error)
+	GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]model.UserFilter, error)
 }
 
 type UserService struct {
@@ -146,4 +147,33 @@ func (ur *UserService) UpdateProfile(id string, profileReq *model.UpdateProfile)
 	}
 
 	return user, nil
+}
+
+func (u *UserService) GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]model.UserFilter, error) {
+	users, err := u.UserRepo.GetUsersByFilter(uniID, minatID, skillID)
+	if err != nil {
+		return nil, err
+	}
+
+	var filter []model.UserFilter
+	for _, user := range users {
+		var minatID []uint
+		for _, minat := range user.Minat {
+			minatID = append(minatID, minat.ID)
+		}
+
+		var skillID []uint
+		for _, skill := range user.Skill {
+			skillID = append(skillID, skill.ID)
+		}
+
+		res := model.UserFilter{
+			Name:  user.Name,
+			Uni:   user.UniID,
+			Minat: minatID,
+			Skill: skillID,
+		}
+		filter = append(filter, res)
+	}
+	return filter, nil
 }

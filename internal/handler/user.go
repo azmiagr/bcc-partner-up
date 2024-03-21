@@ -69,6 +69,8 @@ func (r *Rest) GetUserByName(ctx *gin.Context) {
 		response.Error(ctx, http.StatusInternalServerError, "Failed to get user", err)
 		return
 	}
+
+	//nanti fix bagian ini
 	var profile model.UpdateProfileResponse
 	responses := model.GetUserByNameResponse{
 		Name:  user.Name,
@@ -120,4 +122,31 @@ func (r *Rest) UpdateProfile(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "Profile Updated", res)
+}
+
+func (r *Rest) GetUsersByFilter(ctx *gin.Context) {
+	var filter model.UserFilter
+
+	if err := ctx.ShouldBindJSON(&filter); err != nil {
+		response.Error(ctx, http.StatusBadRequest, "failed to bind input", err)
+		return
+	}
+
+	users, err := r.service.User.GetUsersByFilter(filter.Uni, filter.Minat, filter.Skill)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "failed to get user", err)
+		return
+	}
+
+	// userMap := make(map[uuid.UUID]bool)
+	// var res []model.UserFilter
+
+	// for _, user := range users {
+	// 	if _, ok := userMap[user.ID]; !ok {
+	// 		userMap[user.ID] = true
+	// 		res = append(res, user)
+	// 	}
+	// }
+
+	response.Success(ctx, http.StatusOK, "user found", users)
 }
