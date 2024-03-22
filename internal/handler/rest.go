@@ -55,6 +55,7 @@ func (r *Rest) MountEndpoint() {
 	user.GET("/get-user", r.middleware.AuthenticateUser, r.GetUserByName)
 	user.POST("/profile/upload", r.middleware.AuthenticateUser, r.UploadPhoto)
 	user.PATCH("/profile/update-profile/:user_id", r.middleware.AuthenticateUser, r.UpdateProfile)
+	user.GET("/recommend-user", r.middleware.AuthenticateUser, r.GetRecommendUser)
 
 	post.POST("/post", r.middleware.AuthenticateUser, r.CreatePost)
 	post.PATCH("/update/:id/:user_id", r.UpdatePost)

@@ -2,11 +2,15 @@ package handler
 
 import (
 	// "intern-bcc/internal/service"
+
+	"errors"
+	"intern-bcc/entity"
 	"intern-bcc/model"
 	"intern-bcc/pkg/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // func (r *Rest) Register(ctx *gin.Context) {
@@ -152,4 +156,31 @@ func (r *Rest) GetUsersByFilter(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, http.StatusOK, "user found", users)
+}
+
+func (r *Rest) GetRecommendUser(ctx *gin.Context) {
+	userID := getUserID(ctx)
+	recommendUser, err := r.service.User.RecommendUser(userID)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "Failed to get user", err)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "successfully got user", recommendUser)
+}
+
+func getUserID(ctx *gin.Context) uuid.UUID {
+	user, ok := ctx.Get("user")
+	if !ok {
+		response.Error(ctx, http.StatusUnauthorized, "User must login", errors.New("unauthorized"))
+		return uuid.Nil
+	}
+	claims, ok := user.(entity.User)
+	if !ok {
+		response.Error(ctx, http.StatusUnauthorized, "User must login", errors.New("unauthorized"))
+		return uuid.Nil
+	}
+
+	return claims.ID
+
 }

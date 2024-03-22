@@ -4,6 +4,8 @@ import (
 	"errors"
 	"intern-bcc/entity"
 	"intern-bcc/internal/repository"
+	"intern-bcc/pkg/util"
+
 	"intern-bcc/model"
 	"intern-bcc/pkg/bcrypt"
 	"intern-bcc/pkg/jwt"
@@ -22,6 +24,7 @@ type IUserService interface {
 	UploadPhoto(ctx *gin.Context, param model.UploadPhoto) error
 	UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error)
 	GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]model.UserFilter, error)
+	RecommendUser(userID uuid.UUID) ([]model.UserFilter, error)
 }
 
 type UserService struct {
@@ -176,21 +179,18 @@ func (u *UserService) GetUsersByFilter(uniID uint, minatID []uint, skillID []uin
 		filter = append(filter, res)
 	}
 
-	// filter = removeUser(filter)
+	filter = util.RemoveUser(filter)
 
 	return filter, nil
 }
 
-// func removeUser(users []model.UserFilter) []model.UserFilter {
-// 	dUser := map[uuid.UUID]bool{}
-// 	result := []model.UserFilter{}
+func (us *UserService) RecommendUser(userID uuid.UUID) ([]model.UserFilter, error) {
+	userMinat, err := us.UserRepo.FindRecommendUsers(userID)
+	if err != nil {
+		return nil, err
+	}
+	return userMinat, nil
 
-// 	for _, user := range users {
-// 		if dUser[user.ID] {
-// 			continue
-// 		}
-// 		dUser[user.ID] = true
-// 		result = append(result, user)
-// 	}
-// 	return result
-// }
+}
+
+// sampe sini

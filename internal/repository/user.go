@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"fmt"
 	"intern-bcc/entity"
 	"intern-bcc/model"
+	"intern-bcc/pkg/util"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -16,6 +18,8 @@ type IUserRepository interface {
 	UpdateUserPhoto(user entity.User, param model.UserParam) error
 	UpdateProfile(id string, profileReq *model.UpdateProfile) (*entity.User, error)
 	GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]entity.User, error)
+	RecommendUser(userID uuid.UUID) ([]entity.Minat, error)
+	FindRecommendUsers(userID uuid.UUID) ([]model.UserFilter, error)
 }
 
 type UserRepository struct {
@@ -47,6 +51,7 @@ func (u *UserRepository) GetUser(param model.UserParam) (entity.User, error) {
 		return user, err
 	}
 	return user, nil
+
 }
 
 func (u *UserRepository) GetUserByName(name string) (*entity.User, error) {
@@ -117,8 +122,6 @@ func (u *UserRepository) UpdateProfile(id string, profileReq *model.UpdateProfil
 	return &user, nil
 }
 
-// nanti bikin GetUserByMinat atau Filter
-
 func (u *UserRepository) GetUsersByFilter(uniID uint, minatID []uint, skillID []uint) ([]entity.User, error) {
 	var users []entity.User
 	query := u.db
@@ -137,34 +140,82 @@ func (u *UserRepository) GetUsersByFilter(uniID uint, minatID []uint, skillID []
 	return users, nil
 }
 
-// func parseUpdateProfile(model *model.UpdateProfile, profile *entity.User) *entity.User {
-// 	if model.Name != "" {
-// 		profile.Name = model.Name
-// 	}
-// 	if model.District != 0 {
-// 		profile.DistrictID = model.District
-// 	}
-// 	if len(model.Minat) != 0 {
-// 		// profile.Minat =
-// 	}
-// 	if len(model.Skill) != 0 {
-// 		// profile.Skill =
-// 	}
-// 	if model.Uni != 0 {
-// 		profile.UniID = model.Uni
-// 	}
-// 	return profile
-// }
+func (ur *UserRepository) RecommendUser(userID uuid.UUID) ([]entity.Minat, error) {
+	var minat []entity.Minat
+	if err := ur.db.Joins("JOIN user_minat ON minats.id = user_minat.minat_id").Where("user_minat.user_id IN (?)", userID).Find(&minat).Error; err != nil {
+		return nil, err
+	}
+	return minat, nil
+}
 
-// func (r *UserRepository) CreateUser(u entity.User) (entity.User,error) {
-// 	err := r.db.Debug().Create(&u).Error
-// 	if err != nil {
-// 		return u, err
-// 	}
-// 	return u, nil
-// }
+func (us *UserRepository) FindRecommendUsers(userID uuid.UUID) ([]model.UserFilter, error) {
+	userMinat, err := us.RecommendUser(userID)
+	if err != nil {
+		return nil, err
+	}
 
-//yang lama
-// func (r *UserRepository) CreateUser(u *entity.User) error {
-// 	return r.db.Omit("RoleID").Create(u).Error
-//}
+	combinations := Combinations(userMinat)
+
+	var queries []string
+	for _, combination := range combinations {
+		if len(combination) == 0 {
+			continue
+		}
+		query := "SELECT DISTINCT * FROM users JOIN user_minat ON users.id = user_minat.user_id WHERE "
+		for i, minat := range combination {
+			if i > 0 {
+				if i < len(combination) {
+					query += " AND "
+				}
+			}
+			query += fmt.Sprintf("user_minat.minat_id=%v", minat.ID)
+		}
+		queries = append(queries, query)
+	}
+
+	var recommendUser []entity.User
+	for _, query := range queries {
+		var users []entity.User
+		if err := us.db.Raw(query).Preload("Minat").Preload("Skill").Scan(&users).Error; err != nil {
+			return nil, err
+		}
+		recommendUser = append(recommendUser, users...)
+	}
+
+	var res []model.UserFilter
+	for _, recommend := range recommendUser {
+		var minatID []uint
+		var skillID []uint
+		for _, minat := range recommend.Minat {
+			minatID = append(minatID, minat.ID)
+		}
+		for _, skill := range recommend.Skill {
+			skillID = append(skillID, skill.ID)
+		}
+
+		res = append(res, model.UserFilter{
+			Name:  recommend.Name,
+			Uni:   recommend.UniID,
+			Minat: minatID,
+			Skill: skillID,
+		})
+	}
+	res = util.RemoveUser(res)
+	return res, nil
+}
+
+func Combinations(minats []entity.Minat) [][]entity.Minat {
+	var combination [][]entity.Minat
+	n := len(minats)
+
+	for i := 0; i < (1 << uint(n)); i++ {
+		var combinations []entity.Minat
+		for j := 0; j < n; j++ {
+			if (i & (1 << uint(j))) > 0 {
+				combinations = append(combinations, minats[j])
+			}
+		}
+		combination = append(combination, combinations)
+	}
+	return combination
+}
