@@ -175,5 +175,22 @@ func (u *UserService) GetUsersByFilter(uniID uint, minatID []uint, skillID []uin
 		}
 		filter = append(filter, res)
 	}
+
+	// filter = removeUser(filter)
+
 	return filter, nil
 }
+
+// func removeUser(users []model.UserFilter) []model.UserFilter {
+// 	dUser := map[uuid.UUID]bool{}
+// 	result := []model.UserFilter{}
+
+// 	for _, user := range users {
+// 		if dUser[user.ID] {
+// 			continue
+// 		}
+// 		dUser[user.ID] = true
+// 		result = append(result, user)
+// 	}
+// 	return result
+// }

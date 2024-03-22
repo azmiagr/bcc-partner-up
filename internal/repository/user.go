@@ -51,7 +51,7 @@ func (u *UserRepository) GetUser(param model.UserParam) (entity.User, error) {
 
 func (u *UserRepository) GetUserByName(name string) (*entity.User, error) {
 	var user entity.User
-	if err := u.db.Debug().Where("name = ?", name).First(&user).Error; err != nil {
+	if err := u.db.Debug().Preload("Minat").Preload("Skill").Where("name = ?", name).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

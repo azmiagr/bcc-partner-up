@@ -1,6 +1,7 @@
 package model
 
 import (
+	"intern-bcc/entity"
 	"mime/multipart"
 
 	"github.com/google/uuid"
@@ -34,8 +35,8 @@ type UserParam struct {
 type GetUserByNameResponse struct {
 	Name  string
 	Uni   uint
-	Minat []uint `json:"minat_id"`
-	Skill []uint `json:"skill_id"`
+	Minat []*entity.Minat `json:"minat_id"`
+	Skill []*entity.Skill `json:"skill_id"`
 }
 
 type UploadPhoto struct {
@@ -64,6 +65,10 @@ type UserFilter struct {
 	Uni   uint      `json:"uni_id"`
 	Minat []uint    `json:"minat_id"`
 	Skill []uint    `json:"skill_id"`
+}
+
+type GetUserByNameRequest struct {
+	Name string `form:"name"`
 }
 
 // type UserRegister struct {

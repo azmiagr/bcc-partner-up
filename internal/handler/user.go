@@ -62,21 +62,25 @@ func (r *Rest) Login(ctx *gin.Context) {
 }
 
 func (r *Rest) GetUserByName(ctx *gin.Context) {
-	name := ctx.Param("name")
+	name := model.GetUserByNameRequest{}
+	err := ctx.ShouldBindQuery(&name)
 
-	user, err := r.service.User.GetUserByName(name)
+	if err != nil {
+		response.Error(ctx, http.StatusBadRequest, "Failed to bind input", err)
+		return
+	}
+
+	user, err := r.service.User.GetUserByName(name.Name)
 	if err != nil {
 		response.Error(ctx, http.StatusInternalServerError, "Failed to get user", err)
 		return
 	}
 
-	//nanti fix bagian ini
-	var profile model.UpdateProfileResponse
 	responses := model.GetUserByNameResponse{
 		Name:  user.Name,
 		Uni:   user.UniID,
-		Minat: profile.Minat,
-		Skill: profile.Skill,
+		Minat: user.Minat,
+		Skill: user.Skill,
 	}
 
 	response.Success(ctx, http.StatusOK, "user found", responses)
@@ -101,9 +105,8 @@ func (r *Rest) UploadPhoto(ctx *gin.Context) {
 func (r *Rest) UpdateProfile(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	var profileReq model.UpdateProfile
-
 	if err := ctx.ShouldBindJSON(&profileReq); err != nil {
-		response.Error(ctx, http.StatusUnprocessableEntity, "invalid request", err)
+		response.Error(ctx, http.StatusBadRequest, "invalid request", err)
 		return
 	}
 
@@ -138,15 +141,15 @@ func (r *Rest) GetUsersByFilter(ctx *gin.Context) {
 		return
 	}
 
-	// userMap := make(map[uuid.UUID]bool)
-	// var res []model.UserFilter
-
-	// for _, user := range users {
-	// 	if _, ok := userMap[user.ID]; !ok {
-	// 		userMap[user.ID] = true
-	// 		res = append(res, user)
-	// 	}
-	// }
+	res := make([]model.UserFilter, len(users))
+	for i, user := range users {
+		res[i] = model.UserFilter{
+			Name:  user.Name,
+			Uni:   user.Uni,
+			Minat: user.Minat,
+			Skill: user.Skill,
+		}
+	}
 
 	response.Success(ctx, http.StatusOK, "user found", users)
 }
